@@ -320,3 +320,4 @@ document.addEventListener('dblclick', function(event){
 window.addEventListener("keyup", function(event){
   history.addHintToAllActions(event);
 });
+
