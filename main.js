@@ -217,6 +217,7 @@ function adj(range) {
 
 // 原文を貼り付ける
 window.btn.addEventListener('click', function (event) {
+  document.getElementById("afterClick").style.display = "none";
   marken.text = window.document.getElementById('originalTxt').value;
   removeElements();
 });
@@ -278,6 +279,7 @@ document.addEventListener('keydown', (event) => {
 const element = document.getElementById("english");
 
 element.addEventListener('selectstart', function () {
+
   element.addEventListener('mouseup', function (event) {
     // 半角スペースで始まるときは選択を打ち消す
     if (window.getSelection().toString().slice(0, 1) == " ") {
