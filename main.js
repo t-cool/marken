@@ -336,7 +336,7 @@ document.addEventListener('dblclick', function(event){
   let selectedText = document.getElementById(`${event.target.id}`);
   selectedLength = selectedText.innerText.length;
 
-  document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*11}px`;
+  document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*10}px`;
 
 
   history.addHintToAllActions(event);
