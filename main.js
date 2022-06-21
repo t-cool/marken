@@ -144,14 +144,23 @@ function alpha(range) {
 // 主語の記号をつける
 function s(range) {
   let newNode = document.createElement('span');
+
   newNode.setAttribute('style', 'border-bottom:3px double black;padding-bottom:2px;');
+
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
+
+  // 番号をルビで実現する
   newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
+
   newNode.innerHTML = range.toString();
+
   range.deleteContents();
+
   range.insertNode(newNode);
+
   // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
+
   // 操作のタグ番号を更新する
   history.increaseCurrentSymbolNumber();
 }
@@ -222,9 +231,15 @@ window.btn.addEventListener('click', function (event) {
   removeElements();
 });
 
+// 選択範囲の長さ
+let selectedLength;
+
 // キー操作
 document.addEventListener('keypress', (event) => {
+
+  // 選択範囲をとる
   const selection = document.getSelection();
+  
   const range = selection.getRangeAt(0);
 
   const explanation = new Explanation();
@@ -304,15 +319,25 @@ document.addEventListener('dblclick', function(event){
 
   // 記号がないときは return
   if(event.target.id=="english") return;
-
+  
   document.getElementById(`${event.target.id}`).setAttribute('class','tooltip');
 
   let newElement = document.createElement("span");
+
   let newContent = document.createTextNode("");
   newElement.innerHTML += `<textarea class="hint" id="${event.target.id}_hint">`;
+
   newElement.appendChild(newContent);
   newElement.setAttribute("class","tooltiptext");
+
   document.getElementById(`${event.target.id}`).appendChild(newElement);
+
+  // 幅を取得
+  let selectedText = document.getElementById(`${event.target.id}`);
+  selectedLength = selectedText.innerText.length;
+
+  document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*11}px`;
+
 
   history.addHintToAllActions(event);
 

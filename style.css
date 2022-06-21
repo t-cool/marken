@@ -39,7 +39,7 @@
     content: attr(data-ruby);
     position: absolute;
     top: 8px;
-    left: 0;
+    left: 0px;
     right: 0;
     margin: auto;
     font-size: 13px;
@@ -49,29 +49,28 @@
   height: 40px;
 }
 
+/* tooltip の位置 */
 .tooltip .tooltiptext {
-  font-size:10px;
   visibility: hidden;
-  width: 200px;
   color: #fff;
   text-align: center;
-  border-radius: 6px;
-  
-  /* tooltip の位置 */
   position: absolute;
   z-index: 1;
-  top: 100%;
+  top: 70%;
   left: 0;
   margin-left: 18px;
+  border-radius: 6px;
+
 }
 
-.tooltip:hover .tooltiptext {
+.tooltip .tooltiptext {
   visibility: visible;
 }
 
 .hint{
   resize: none;
-  width: 200px;
-  height: 30px;
-  font-size: 1px;
+  width: 100px;
+  height: 20px;
+  font-size: 13px;
+  border: 1px solid gainsboro;
 }
