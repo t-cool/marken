@@ -1,35 +1,33 @@
 # marken
 
-マー君
+Marken is the application to clarify the semantic structure of English sentences.
 
-読解で意味順の要素を明示するときにご活用ください。
+## Demo
 
-[marken デモ](https://t-cool.github.io/marken/)
+https://t-cool.github.io/marken
 
 
-## 使い方
+## Usage
 
-英文を読み込み後、記号をつける範囲を選択して以下のキーを押すと、選択された箇所に記号がつきます。
+After selecting the English text with the cursor, press the following key to add a symbol.
 
-| キー | 記号 |
+| Key | Meaning |
 ----|---- 
-| A | だれが（なにが） |
-| S | する（です） |
-| D | だれ・なに |
-| F | どこ、どう、いつ、なぜ |
-| G | 形容詞句(節) |
-| Z | 玉手箱 |
+| A | Who/What |
+| S | Do(Is) |
+| D | Whom/What |
+| F | Where/When/How/Why |
+| G | Adjective Phrase |
+| Z | Conjunction |
 
-操作に関するコマンドは以下の通りです。
+The following additional commands are also available.
 
-| コマンド | 操作 |
+| Command | Purpose |
 ----|---- 
 | Ctrl(Cmd)+Z | Undo |
 | Ctrl(Cmd)+Y | Redo |
-| 記号がついた要素をダブルクリック | 解説を追加する |
+| Double-click on an element with the symbol | Put a note |
 
-編集後は PDF に印刷して利用できます。
-
-## ライセンス
+## License
 
 The GNU General Public License v3.0
