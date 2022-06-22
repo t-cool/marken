@@ -1,36 +1,111 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <title>意味順</title>
-    <link rel="stylesheet" type="text/css" href="./style.css">
+<meta charset="UTF-8">
+<title>意味順</title>
+<style type="text/css">
+.container{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-left:100px;
+  padding-right:100px;
+}
+
+#originalTxt{
+  display:inline-block;
+  overflow-wrap: anywhere;
+  width:80%;
+  height: 300px;
+}
+
+#btn{
+  display:inline-block;
+  width: 80%;
+  height: 50px;
+  font-size: 20px;
+}
+
+#english{
+  display: block;
+  /* 行間 */
+  line-height: 350%;
+  /* 文字の大きさ */
+  font-size: 1.5em;
+  /* 文字折り返し */
+  overflow-wrap: normal;
+}
+
+/* ルビ機能 (課題) 内包する要素の文字選択ができない */
+[data-ruby] {
+    position: relative;
+}
+
+[data-ruby]::before {
+    content: attr(data-ruby);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-size: 10px;
+}
+
+.tooltip {
+  height: 0px;
+}
+
+/* tooltip の位置 */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  color: #fff;
+  text-align: center;
+  position: absolute;
+  z-index: 1;
+  top: 120%;
+  left: 0;
+  margin-left: 18px;
+  border-radius: 6px;
+
+}
+
+.tooltip .tooltiptext {
+  visibility: visible;
+}
+
+.hint{
+  resize: none;
+  width: 100px;
+  height: 20px;
+  font-size: 13px;
+  border: 1px solid gainsboro;
+}
+</style>
 </head>
 
 <body>
     <div class="container">
-
         <!-- 英文の貼り付け場所 -->
-        <textarea id="originalTxt">These are short, famous texts in English from classic sources like the Bible or Shakespeare. Some texts have word definitions and explanations to help you. Some of these texts are written in an old style of English. Try to understand them, because the English that we speak today is based on what our great, great, great, great grandparents spoke before! Of course, not all these texts were originally written in English. The Bible, for example, is a translation. But they are all well known in English today, and many of them express beautiful thoughts.
-
-https://www.englishclub.com/reading/classic-reading.htm</textarea>
+        <textarea id="originalTxt">These are short, famous texts in English from classic sources like the Bible or Shakespeare. Some texts have word definitions and explanations to help you. Some of these texts are written in an old style of English. </textarea>
 
         <!-- ボタン -->
         <button id="btn">START</button>
 
-        <br><br>
-
         <!-- 注釈 -->
         <div id="afterClick" style="display: flex;width:100%;margin-left:25%;margin-top: 10px;margin-bottom: 10px;">
         </div>
-
         <!--
         <div id="signs" style="display: flex;border: solid 1px black;padding: 5px;margin-top: 10px;margin-bottom: 10px;">A : 誰が　　S : する(です)　 D : だれ・なに<br>F : どこ、どう、いつ、なぜ　 G : 形容詞句(節)　<br>Z : 玉手箱</div>
         -->
 
         <!-- 記号をつける場所 -->
-        <div id="english">
+        <div id="english">          
         </div>
+        
+        <input type="text" id="filename" name="name" required
+       minlength="1" placeholder="ファイル名" maxlength="100" size="20">
+        <button id="saveBtn">Save</button>
+
+
         <br>
     </div>
 
@@ -382,6 +457,33 @@ document.addEventListener('dblclick', function(event){
 window.addEventListener("keyup", function(event){
   history.addHintToAllActions(event);
 });
+
+// ページの保存機能
+saveBtn.addEventListener('click', function(evt) {
+  // ファイル名
+  let fileName = document.getElementById('filename').value + ".html";
+  console.log(fileName);
+
+  // 保存する内容
+  let savedContent = document.getElementsByTagName('html')[0].innerHTML;
+  console.log("<html>" + savedContent);
+
+  evt.preventDefault();
+
+  const blob = new Blob([savedContent], {type: 'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  a.download = fileName;
+  a.href = url;
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  console.log(savedContent);
+}
+
+);
 
 </script>
 
