@@ -98,13 +98,16 @@
         -->
 
         <!-- 記号をつける場所 -->
-        <div id="english">          
-        </div>
-        
+        <div id="english"></div>  
+        <button id="saveNotesBtn">Save Notes</button>
+        <button id="restoreNotesBtn">Restore Notes</button>
+        <div id="allNotesData" style="display: none;"></div>
+        <div id="symbolNumber" style="display: none;"></div>
+        <!--
         <input type="text" id="filename" name="name" required
        minlength="1" placeholder="ファイル名" maxlength="100" size="20">
         <button id="saveBtn">Save</button>
-
+        -->
 
         <br>
     </div>
@@ -127,12 +130,14 @@ function Marken() {
   // this.redo_list = [];
   this.index = 0;
 }
+
 Marken.prototype.add = function (explanation) {
   this.explanations = this.explanations.slice(0, this.index + 1);
   this.explanations.push(explanation);
   this.index = this.explanations.length - 1;
   return explanation;
 };
+
 Marken.prototype.undo = function () {
   if (this.explanations.length > 0) {
     if (this.index > -1) {
@@ -140,6 +145,7 @@ Marken.prototype.undo = function () {
     }
   }
 };
+
 Marken.prototype.redo = function () {
   if (this.explanations.length > 0) {
     if (this.index < this.explanations.length - 1) {
@@ -148,6 +154,7 @@ Marken.prototype.redo = function () {
   }
 };
 
+// ヒント関連
 function Explanation() {
   this.range = null;
   this.instruction = null;
@@ -160,7 +167,6 @@ Instruction.prototype.do = function(){}
 
 let marken = new Marken();
 
-
 // 履歴関連
 let history = (function(){
   // プロパティ
@@ -170,6 +176,11 @@ let history = (function(){
   // 直近のアクション番号を取得
   function getCurrentSymbolNumber(){
     return currentSymbolNumber
+  }
+
+  // アクション番号を再設定する
+  function setCurrentSymbolNumber(number){
+    currentSymbolNumber = number;
   }
 
   function getPreviousSymbolNumber(){
@@ -202,6 +213,7 @@ let history = (function(){
 
   return {
     getCurrentSymbolNumber: getCurrentSymbolNumber,
+    setCurrentSymbolNumber: setCurrentSymbolNumber,
     increaseCurrentSymbolNumber: increaseCurrentSymbolNumber,
     decreaseCurrentSymbolNumber: decreaseCurrentSymbolNumber,
     getPreviousSymbolNumber: getPreviousSymbolNumber,
@@ -267,7 +279,7 @@ function s(range) {
   let newNode = document.createElement('span');
 
   newNode.setAttribute('style', 'border-bottom:3px double black;padding-bottom:2px;');
-
+//  newNode.setAttribute('class', 'actions');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
 
   // 番号をルビで実現する
@@ -430,7 +442,7 @@ document.addEventListener('dblclick', function(event){
   // 記号がないときは return
   if(event.target.id=="english") return;
   
-  document.getElementById(`${event.target.id}`).setAttribute('class','tooltip');
+  document.getElementById(`${event.target.id}`).setAttribute('class','tooltip actions');
 
   let newElement = document.createElement("span");
 
@@ -458,34 +470,98 @@ window.addEventListener("keyup", function(event){
   history.addHintToAllActions(event);
 });
 
-// ページの保存機能
-saveBtn.addEventListener('click', function(evt) {
-  // ファイル名
-  let fileName = document.getElementById('filename').value + ".html";
-  console.log(fileName);
+if(window.saveBtn){
+  // ページの保存機能
+  saveBtn.addEventListener('click', function(evt) {
 
-  // 保存する内容
-  let savedContent = document.getElementsByTagName('html')[0].innerHTML;
-  console.log("<html>" + savedContent);
+    // ファイル名
+    let fileName = document.getElementById('filename').value + ".html";
+    console.log(fileName);
 
-  evt.preventDefault();
+    // 保存する内容
+    let savedContent = document.getElementsByTagName('html')[0].innerHTML;
+    console.log("<html>" + savedContent);
 
-  const blob = new Blob([savedContent], {type: 'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  document.body.appendChild(a);
-  a.download = fileName;
-  a.href = url;
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+    evt.preventDefault();
 
-  console.log(savedContent);
+    const blob = new Blob([savedContent], {type: 'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    a.download = fileName;
+    a.href = url;
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    console.log(savedContent);
+
+  });
 }
 
-);
+saveNotesBtn.addEventListener("click",function(){
+  saveNotes(event);
+})
+
+let allNotesObj = {};
+let allNotes;
+
+
+// 注釈保存機能
+function saveNotes(evt){
+
+  allNotes =  document.getElementsByClassName('actions');
+
+  for (let i = 0; i < allNotes.length; i++) {
+
+    allNotesObj[allNotes[i].id] = allNotes[i].childNodes[1].childNodes[0].value;
+
+    console.log(
+    // action id
+    allNotes[i].id, 
+    // 注釈
+    allNotes[i].childNodes[1].childNodes[0].value);
+  }
+
+  // action に紐づいた注釈を保存しておく
+  let parent1 = document.getElementById('allNotesData');
+
+  // 現在の注釈番号を記憶しておく
+  let parent2 = document.getElementById('symbolNumber');
+
+  let notes = JSON.stringify(allNotesObj);
+  let currentSymbolNumber = history.getCurrentSymbolNumber();
+
+  parent1.innerText = notes;
+  parent2.innerText = currentSymbolNumber;
+
+}
+
+// 注釈復元機能
+var allNotesArray = [];
+restoreNotesBtn.addEventListener('click',function(){
+    // allNotesObj に注釈のデータが入っている
+    // {"action1":"2222","action3":"dddd"}
+    allNotesObj = JSON.parse(document.getElementById('allNotesData').innerText)
+
+    allNotesArray = Object.entries(allNotesObj);
+
+    // コメントの action 番号
+    for(i = 0; i < allNotesArray.length; i++){
+      
+      document.getElementById(allNotesArray[i][0]).childNodes[1].childNodes[0].value
+      = allNotesArray[i][1];
+    }
+})
+
+// 再編集する場合に action 番号を設定する
+if(Number(document.getElementById('symbolNumber').innerText)){
+  history.setCurrentSymbolNumber(Number(document.getElementById('symbolNumber').innerText));
+}
 
 </script>
 
 
 </body>
+
+</html>
