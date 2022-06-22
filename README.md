@@ -1,5 +1,7 @@
 # marken
 
+![screencast](./screencast.gif)
+
 Marken is the application to clarify the semantic structure of English sentences.
 
 ## Demo
