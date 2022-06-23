@@ -431,7 +431,8 @@ element.addEventListener('selectstart', function () {
 // ダブルクリックした要素に input text でヒントを加える
 document.addEventListener('dblclick', function(event){
 
-// koko!
+  // 現在のシンボル番号を保存しておく
+  parent2.innerText = history.getCurrentSymbolNumber();
 
   // 記号がないときは return
   if(event.target.id=="english") return;
@@ -550,6 +551,8 @@ restoreNotesBtn.addEventListener('click',function(){
     }
 })
 
+// 現在の注釈番号を記憶しておく
+let parent2 = document.getElementById('symbolNumber');
 // 再編集する場合に action 番号を設定する
 if(Number(document.getElementById('symbolNumber').innerText)){
   history.setCurrentSymbolNumber(Number(document.getElementById('symbolNumber').innerText));
