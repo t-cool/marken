@@ -14,9 +14,10 @@
 
 #originalTxt{
   display:inline-block;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   width:80%;
-  height: 300px;
+  height: 400px;
+  font-size: 15px;
 }
 
 #btn{
@@ -26,17 +27,17 @@
   font-size: 20px;
 }
 
+/* 記号をつける英文 */
 #english{
   display: block;
   /* 行間 */
   line-height: 350%;
   /* 文字の大きさ */
-  font-size: 1.5em;
-  /* 文字折り返し */
-  overflow-wrap: normal;
+  font-size: 1.3em;
+  overflow-wrap: break-word;
 }
 
-/* ルビ機能 (課題) 内包する要素の文字選択ができない */
+/* ルビ機能*/
 [data-ruby] {
     position: relative;
 }
@@ -50,35 +51,37 @@
     font-size: 10px;
 }
 
-.tooltip {
-  height: 0px;
+.tooltip { /* 補足説明するテキストのスタイル */
+  position: relative;
+  cursor: pointer;
 }
 
-/* tooltip の位置 */
-.tooltip .tooltiptext {
-  visibility: hidden;
-  color: #fff;
-  text-align: center;
+.description_bottom { /* ツールチップのスタイル */
+  width: 200px; /* 横幅 */
   position: absolute;
+  line-height: 150%;
+  top: 80%; /* Y軸の位置 */
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px; /* テキストとの距離 */
+  padding: 8px;
+  border-radius: 10px; /* 角の丸み */
+  background-color: whitesmoke;
+  font-size: 0.7em;
+  color: black;
+  text-align: left;
+  visibility: hidden; /* ツールチップを非表示に */
+  opacity: 0; /* 不透明度を0％に */
   z-index: 1;
-  top: 120%;
-  left: 0;
-  margin-left: 18px;
-  border-radius: 6px;
-
+  transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
 }
 
-.tooltip .tooltiptext {
-  visibility: visible;
+.tooltip:hover .description_bottom { /* マウスオーバー時のスタイル */
+  top: 100%; /* Y軸の位置 */
+  visibility: visible; /* ツールチップを表示 */
+  opacity: 1; /* 不透明度を100％に */
 }
 
-.hint{
-  resize: none;
-  width: 100px;
-  height: 20px;
-  font-size: 13px;
-  border: 1px solid gainsboro;
-}
 </style>
 </head>
 
@@ -93,9 +96,6 @@
         <!-- 注釈 -->
         <div id="afterClick" style="display: flex;width:100%;margin-left:25%;margin-top: 10px;margin-bottom: 10px;">
         </div>
-        <!--
-        <div id="signs" style="display: flex;border: solid 1px black;padding: 5px;margin-top: 10px;margin-bottom: 10px;">A : 誰が　　S : する(です)　 D : だれ・なに<br>F : どこ、どう、いつ、なぜ　 G : 形容詞句(節)　<br>Z : 玉手箱</div>
-        -->
 
         <!-- 記号をつける場所 -->
         <div id="english"></div>  
@@ -103,12 +103,6 @@
         <button id="restoreNotesBtn">Restore Notes</button>
         <div id="allNotesData" style="display: none;"></div>
         <div id="symbolNumber" style="display: none;"></div>
-        <!--
-        <input type="text" id="filename" name="name" required
-       minlength="1" placeholder="ファイル名" maxlength="100" size="20">
-        <button id="saveBtn">Save</button>
-        -->
-
         <br>
     </div>
 
@@ -126,8 +120,6 @@ if(window.btn){
 function Marken() {
   this.text = '';
   this.explanations = [];
-  // this.undo_list = [];
-  // this.redo_list = [];
   this.index = 0;
 }
 
@@ -238,7 +230,7 @@ function clear(){
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).style = null;
     // 括弧記号 ( ) ＜ ＞ の削除
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).innerHTML = 
-    document.getElementById(`action${history.getPreviousSymbolNumber()}`).innerHTML.replace("＜","").replace("＞","").replace(" )","").replace("( ","").replace("⤺","");
+    document.getElementById(`action${history.getPreviousSymbolNumber()}`).innerHTML.replace("＜","").replace("＞","").replace(" )","").replace("( ","");
     // ルビの消去
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).removeAttribute("data-ruby");
     // id の消去
@@ -251,7 +243,7 @@ function clear(){
 function clearSelected(range) {
   let newNode = document.createElement('span');
   newNode.setAttribute('style', '');
-  newNode.innerHTML = range.toString().replace("＜", "").replace("＞", "").replace(" )", "").replace("( ", "").replace("⤺", "");
+  newNode.innerHTML = range.toString().replace("＜", "").replace("＞", "").replace(" )", "").replace("( ", "");
   range.deleteContents();
   range.insertNode(newNode);
   // 操作ラベルを 1 減らす
@@ -348,7 +340,7 @@ function adj(range) {
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
   newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
   newNode.innerHTML = 
-  `<span style="display:inline-block;transform:scale(1.5, 1);">⤺</span>( ${range.toString()} )`;
+  `<span style="display:inline-block;transform:scale(1.5, 1);"></span>( ${range.toString()} )`;
   range.deleteContents();
   range.insertNode(newNode);
   // 履歴に直近の action を追加する
@@ -439,18 +431,19 @@ element.addEventListener('selectstart', function () {
 // ダブルクリックした要素に input text でヒントを加える
 document.addEventListener('dblclick', function(event){
 
+// koko!
+
   // 記号がないときは return
   if(event.target.id=="english") return;
   
   document.getElementById(`${event.target.id}`).setAttribute('class','tooltip actions');
 
   let newElement = document.createElement("span");
-
-  let newContent = document.createTextNode("");
-  newElement.innerHTML += `<textarea class="hint" id="${event.target.id}_hint">`;
-
-  newElement.appendChild(newContent);
-  newElement.setAttribute("class","tooltiptext");
+  newElement.setAttribute("class","description_bottom");
+  newElement.setAttribute("contenteditable","true");
+  newElement.setAttribute("id",`${event.target.id}_hint`);
+//  newElement.appendChild(newContent);
+//  newElement.setAttribute("class","tooltiptext");
 
   document.getElementById(`${event.target.id}`).appendChild(newElement);
 
@@ -458,7 +451,10 @@ document.addEventListener('dblclick', function(event){
   let selectedText = document.getElementById(`${event.target.id}`);
   selectedLength = selectedText.innerText.length;
 
-  document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*10}px`;
+  // コメントの幅を文字列に応じて変える
+  // document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*10}px`;
+
+  // document.getElementById(`${event.target.id}_hint`).innerHTML = "　　".repeat(selectedLength);
 
 
   history.addHintToAllActions(event);
@@ -506,7 +502,6 @@ saveNotesBtn.addEventListener("click",function(){
 let allNotesObj = {};
 let allNotes;
 
-
 // 注釈保存機能
 function saveNotes(evt){
 
@@ -514,13 +509,14 @@ function saveNotes(evt){
 
   for (let i = 0; i < allNotes.length; i++) {
 
-    allNotesObj[allNotes[i].id] = allNotes[i].childNodes[1].childNodes[0].value;
+    allNotesObj[allNotes[i].id] = allNotes[i].childNodes[1].innerHTML;
 
     console.log(
     // action id
     allNotes[i].id, 
     // 注釈
-    allNotes[i].childNodes[1].childNodes[0].value);
+    allNotes[i].childNodes[1].innerHTML
+    );
   }
 
   // action に紐づいた注釈を保存しておく
