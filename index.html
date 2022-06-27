@@ -10,8 +10,9 @@
   flex-wrap: wrap;
   padding-left:100px;
   padding-right:100px;
-}
 
+  word-break: normal;
+}
 #originalTxt{
   display:inline-block;
   overflow-wrap: break-word;
@@ -19,29 +20,25 @@
   height: 400px;
   font-size: 15px;
 }
-
 #btn{
   display:inline-block;
   width: 80%;
   height: 50px;
   font-size: 20px;
 }
-
 /* 記号をつける英文 */
 #english{
   display: block;
   /* 行間 */
-  line-height: 350%;
+  line-height: 3;
   /* 文字の大きさ */
   font-size: 1.3em;
   overflow-wrap: break-word;
 }
-
 /* ルビ機能*/
 [data-ruby] {
     position: relative;
 }
-
 [data-ruby]::before {
     content: attr(data-ruby);
     position: absolute;
@@ -50,13 +47,13 @@
     right: 0;
     font-size: 10px;
 }
-
-.tooltip { /* 補足説明するテキストのスタイル */
+/* 補足説明するテキストのスタイル */
+.tooltip { 
   position: relative;
   cursor: pointer;
 }
-
-.description_bottom { /* ツールチップのスタイル */
+/* ツールチップのスタイル */
+.description_bottom { 
   width: 200px; /* 横幅 */
   position: absolute;
   line-height: 150%;
@@ -75,12 +72,12 @@
   z-index: 1;
   transition: 0.5s all; /* マウスオーバー時のアニメーション速度 */
 }
-
 .tooltip:hover .description_bottom { /* マウスオーバー時のスタイル */
   top: 100%; /* Y軸の位置 */
   visibility: visible; /* ツールチップを表示 */
   opacity: 1; /* 不透明度を100％に */
 }
+
 
 </style>
 </head>
@@ -91,7 +88,7 @@
         <textarea id="originalTxt">These are short, famous texts in English. Some texts have word definitions and explanations to help you. Some of these texts are written in an old style of English. </textarea>
 
         <!-- ボタン -->
-        <button id="btn">START</button>
+        <button id="btn">Start</button>
 
         <!-- 注釈 -->
         <div id="afterClick" style="display: flex;width:100%;margin-left:25%;margin-top: 10px;margin-bottom: 10px;">
@@ -105,7 +102,6 @@
         <div id="symbolNumber" style="display: none;"></div>
         <br>
     </div>
-
 <script>
 // ページに原文の貼り付けページがある場合
 if(window.btn){
@@ -226,107 +222,126 @@ function removeElements(){
 
 // つけた記号を削除する
 function clear(){
+    // ルビの消去
+    let parent = document.getElementById(`action${history.getPreviousSymbolNumber()}`);
+    // 数字の削除
+    parent.childNodes[0].remove();
     // 線記号の削除
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).style = null;
     // 括弧記号 ( ) ＜ ＞ の削除
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).innerHTML = 
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).innerHTML.replace("＜","").replace("＞","").replace(" )","").replace("( ","");
-    // ルビの消去
-    document.getElementById(`action${history.getPreviousSymbolNumber()}`).removeAttribute("data-ruby");
     // id の消去
     document.getElementById(`action${history.getPreviousSymbolNumber()}`).removeAttribute("id");
     // 操作ラベルを 1 減らす
     history.decreaseCurrentSymbolNumber();
 }
 
-// 選択箇所の記号をクリアする
-function clearSelected(range) {
-  let newNode = document.createElement('span');
-  newNode.setAttribute('style', '');
-  newNode.innerHTML = range.toString().replace("＜", "").replace("＞", "").replace(" )", "").replace("( ", "");
-  range.deleteContents();
-  range.insertNode(newNode);
-  // 操作ラベルを 1 減らす
-  history.decreaseCurrentSymbolNumber();
-}
-
 // 機能語の記号をつける
 function alpha(range) {
+  // 記号をつけて id をふる
   let newNode = document.createElement('span');
-  newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
-  newNode.setAttribute('style', 'border: solid 1px black;background-color: #fff0e0');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
-  // 半角スペース '&thinsp;'
   newNode.innerHTML = range.toString();
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px;vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
+  // 後処理
   range.deleteContents();
   range.insertNode(newNode);
-  // 履歴に直近のアクションを追加
+  // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
   // 操作のタグ番号を更新する
   history.increaseCurrentSymbolNumber();
+  // 囲み文字
+  newNode.setAttribute('style', 'border: solid 1px black;');
 }
 
 // 主語の記号をつける
 function s(range) {
+  // 記号をつけて id をふる
   let newNode = document.createElement('span');
-
-  newNode.setAttribute('style', 'border-bottom:3px double black;padding-bottom:2px;');
-//  newNode.setAttribute('class', 'actions');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
-
-  // 番号をルビで実現する
-  newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
-
   newNode.innerHTML = range.toString();
-
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px;vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
+  // 後処理
   range.deleteContents();
-
   range.insertNode(newNode);
-
   // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
-
   // 操作のタグ番号を更新する
   history.increaseCurrentSymbolNumber();
+  // 'a'
+  newNode.setAttribute('style', 'border-bottom:3px double black;padding-bottom:2px;');
 }
 
 // 動詞の記号をつける
 function v(range) {
+  // 記号をつけて id をふる
   let newNode = document.createElement('span');
-  newNode.setAttribute('style', 'border: solid 1px black;border-radius: 10px;');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
-  newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
   newNode.innerHTML = range.toString();
-  range.deleteContents();
-  range.insertNode(newNode);
-  // 履歴に直近の action を追加
-  history.addCurrentActionToAllActions();
-  // 操作のタグ番号を更新する
-  history.increaseCurrentSymbolNumber();
-}
-
-// 目的語(O)・補語(C)の記号をつける
-function oc(range) {
-  let newNode = document.createElement('span');
-  newNode.setAttribute('style', 'border-bottom:1px solid black;padding-bottom:2px;');
-  newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
-  newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
-  newNode.innerHTML = range.toString();
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px;vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
+  // 後処理
   range.deleteContents();
   range.insertNode(newNode);
   // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
   // 操作のタグ番号を更新する
   history.increaseCurrentSymbolNumber();
+  // 二重線のスタイル
+  newNode.setAttribute('style', 'border: solid 1px black;border-radius: 10px;');
+}
+
+// 目的語(O)・補語(C)の記号をつける
+function oc(range) {
+  // 記号をつけて id をふる
+  let newNode = document.createElement('span');
+  newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
+  newNode.innerHTML = range.toString();
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px;vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
+  // 後処理
+  range.deleteContents();
+  range.insertNode(newNode);
+  // 履歴に直近の action を追加する
+  history.addCurrentActionToAllActions();
+  // 操作のタグ番号を更新する
+  history.increaseCurrentSymbolNumber();
+  // 一重線のスタイル
+  newNode.setAttribute('style', 'border-bottom:1px solid black;padding-bottom:2px;');
 }
 
 // 副詞の記号をつける
 function adv(range){
-  let newNode = document.createElement('span');  
-  newNode.setAttribute('data-ruby', `${history.getCurrentSymbolNumber()}`);
+  // 記号をつけて id をふる
+  let newNode = document.createElement('span');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
+  newNode.innerHTML = range.toString();
+  // 後処理
+  range.deleteContents();
+  range.insertNode(newNode);
   newNode.innerHTML = `＜${range.toString()}＞`;
   range.deleteContents();
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px; vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  // ルビを挿入する
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
   range.insertNode(newNode);
   // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
@@ -336,12 +351,21 @@ function adv(range){
 
 // 後置修飾の記号をつける
 function adj(range) {
+  // 記号をつけて id をふる
   let newNode = document.createElement('span');
   newNode.setAttribute('id', `action${history.getCurrentSymbolNumber()}`);
-  newNode.setAttribute('data-ruby', history.getCurrentSymbolNumber());
-  newNode.innerHTML = 
-  `<span style="display:inline-block;transform:scale(1.5, 1);"></span>( ${range.toString()} )`;
+  newNode.innerHTML = range.toString();
+  // 後処理
   range.deleteContents();
+  range.insertNode(newNode);
+  newNode.innerHTML = `( ${range.toString()} ) `;
+  range.deleteContents();
+  // ルビを span 要素で挿入する
+  let actionNumberRuby = document.createElement('span');
+  actionNumberRuby.setAttribute("style","font-size:3px; vertical-align: -70%;");
+  actionNumberRuby.textContent = history.getCurrentSymbolNumber();
+  // ルビを挿入する
+  newNode.insertBefore(actionNumberRuby,newNode.firstChild);
   range.insertNode(newNode);
   // 履歴に直近の action を追加する
   history.addCurrentActionToAllActions();
@@ -351,18 +375,19 @@ function adj(range) {
 
 // キー操作
 document.addEventListener('keypress', (event) => {
-
+  // 選択範囲を取得する
+  const selection = window.getSelection()
+  // getRangeAt(0) を使う前に選択範囲が存在するかどうかチェックする
+  if(!selection || selection.rangeCount < 1) return;
   // 選択範囲をとる
-  const selection = document.getSelection();
-  const range = selection.getRangeAt(0);
-
+  let range = document.getSelection().getRangeAt(0);
   const explanation = new Explanation();
   explanation.range = range;
-
   // 選択範囲がないときは return
-  if (range.toString() == '') return;
+  if (document.getSelection().getRangeAt(0).toString() == '') return;
   // 記号付け
   let keyName = event.key;
+  console.log(keyName);
   if (keyName == 'a') {
     explanation.instruction = s;
     s(range);
@@ -382,18 +407,23 @@ document.addEventListener('keypress', (event) => {
     explanation.instruction = alpha;
     alpha(range);
   } else if (keyName == 'c') {
-    clearSelected(range);
+    clear(range);
   }
   marken.add(explanation);
-});
+  // 選択範囲を初期化
+  window.getSelection().removeAllRanges();
+  // 注釈番号を保存する
+  saveNumber(event);
+}
+);
 
+// Cmd(Ctrl)+z で直前の操作を取り消す
 document.addEventListener('keydown', (event) => {
-  // Cmd(Ctrl)+z で直前の操作を取り消す
   if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
     const explanation = marken.undo();
     console.log(explanation);
     if (!!explanation) {
-      clearSelected(explanation.range);
+      clear(explanation.range);
     }
   } else if (event.key === 'y' && (event.ctrlKey || event.metaKey)) {
     const explanation = marken.redo();
@@ -406,20 +436,16 @@ document.addEventListener('keydown', (event) => {
 
 // ドラッグ選択の操作
 const element = document.getElementById("english");
-
 element.addEventListener('selectstart', function () {
-
   element.addEventListener('mouseup', function (event) {
     // 半角スペースで始まるときは選択を打ち消す
     if (window.getSelection().toString().slice(0, 1) == " ") {
       window.getSelection().removeAllRanges();
     }
-
     // 選択が長すぎる場合は選択を取り消す
     if (window.getSelection().toString().length >= 80) {
       window.getSelection().removeAllRanges();
     }
-
     // 最後が半角スペースで始まるときは選択を打ち消す
     if (window.getSelection().toString().slice(-1) == " ") {
       console.log("!")
@@ -430,137 +456,34 @@ element.addEventListener('selectstart', function () {
 
 // ダブルクリックした要素に input text でヒントを加える
 document.addEventListener('dblclick', function(event){
-
-  // 現在のシンボル番号を保存しておく
-  parent2.innerText = history.getCurrentSymbolNumber();
-
   // 記号がないときは return
   if(event.target.id=="english") return;
-  
+  // ヒント用の class を設定
   document.getElementById(`${event.target.id}`).setAttribute('class','tooltip actions');
-
+  // クラスを編集可能な span で実装する
   let newElement = document.createElement("span");
   newElement.setAttribute("class","description_bottom");
   newElement.setAttribute("contenteditable","true");
   newElement.setAttribute("id",`${event.target.id}_hint`);
-//  newElement.appendChild(newContent);
-//  newElement.setAttribute("class","tooltiptext");
-
   document.getElementById(`${event.target.id}`).appendChild(newElement);
-
   // 幅を取得
   let selectedText = document.getElementById(`${event.target.id}`);
   selectedLength = selectedText.innerText.length;
-
-  // コメントの幅を文字列に応じて変える
-  // document.getElementById(`${event.target.id}_hint`).style.width = `${selectedLength*10}px`;
-
-  // document.getElementById(`${event.target.id}_hint`).innerHTML = "　　".repeat(selectedLength);
-
-
-  history.addHintToAllActions(event);
-
-});
-
-// 解説コメントの更新
-window.addEventListener("keyup", function(event){
   history.addHintToAllActions(event);
 });
 
-if(window.saveBtn){
-  // ページの保存機能
-  saveBtn.addEventListener('click', function(evt) {
-
-    // ファイル名
-    let fileName = document.getElementById('filename').value + ".html";
-    console.log(fileName);
-
-    // 保存する内容
-    let savedContent = document.getElementsByTagName('html')[0].innerHTML;
-    console.log("<html>" + savedContent);
-
-    evt.preventDefault();
-
-    const blob = new Blob([savedContent], {type: 'text/plain'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    document.body.appendChild(a);
-    a.download = fileName;
-    a.href = url;
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-    console.log(savedContent);
-
-  });
-}
-
-saveNotesBtn.addEventListener("click",function(){
-  saveNotes(event);
-})
-
-let allNotesObj = {};
-let allNotes;
-
-// 注釈保存機能
-function saveNotes(evt){
-
-  allNotes =  document.getElementsByClassName('actions');
-
-  for (let i = 0; i < allNotes.length; i++) {
-
-    allNotesObj[allNotes[i].id] = allNotes[i].childNodes[1].innerHTML;
-
-    console.log(
-    // action id
-    allNotes[i].id, 
-    // 注釈
-    allNotes[i].childNodes[1].innerHTML
-    );
-  }
-
-  // action に紐づいた注釈を保存しておく
-  let parent1 = document.getElementById('allNotesData');
-
+// action 番号の保存
+function saveNumber(event){
   // 現在の注釈番号を記憶しておく
-  let parent2 = document.getElementById('symbolNumber');
-
-  let notes = JSON.stringify(allNotesObj);
+  let parent = document.getElementById('symbolNumber');
   let currentSymbolNumber = history.getCurrentSymbolNumber();
-
-  parent1.innerText = notes;
-  parent2.innerText = currentSymbolNumber;
-
+  parent.innerText = currentSymbolNumber;
 }
 
-// 注釈復元機能
-var allNotesArray = [];
-restoreNotesBtn.addEventListener('click',function(){
-    // allNotesObj に注釈のデータが入っている
-    // {"action1":"2222","action3":"dddd"}
-    allNotesObj = JSON.parse(document.getElementById('allNotesData').innerText)
-
-    allNotesArray = Object.entries(allNotesObj);
-
-    // コメントの action 番号
-    for(i = 0; i < allNotesArray.length; i++){
-      
-      document.getElementById(allNotesArray[i][0]).childNodes[1].childNodes[0].value
-      = allNotesArray[i][1];
-    }
-})
-
-// 現在の注釈番号を記憶しておく
-let parent2 = document.getElementById('symbolNumber');
 // 再編集する場合に action 番号を設定する
 if(Number(document.getElementById('symbolNumber').innerText)){
   history.setCurrentSymbolNumber(Number(document.getElementById('symbolNumber').innerText));
 }
-
 </script>
-
-
 </body>
-
 </html>
