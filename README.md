@@ -20,7 +20,7 @@ After selecting the English text with the cursor, press the following key to add
 | D | Whom / What |
 | F | Where / When / How / Why (Adverbial phrases and clauses)|
 | G | Adjective Phrase or Clause |
-| Z | α(Treasure Chest) |
+| Z | α(Tamatebako) |
 
 The following additional commands are also available.
 
