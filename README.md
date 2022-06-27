@@ -2,7 +2,7 @@
 
 ![screencast](./screencast1.gif)
 
-Marken is the application to clarify the semantic structure of English sentences.
+Marken is an attempt to apply the theory of "意味順", The Order of Meanings, to English reading comprehension.
 
 ## Demo
 
@@ -15,12 +15,12 @@ After selecting the English text with the cursor, press the following key to add
 
 | Key | Meaning |
 ----|---- 
-| A | Who/What |
+| A | Who(What) |
 | S | Do(Is) |
-| D | Whom/What |
-| F | Where/When/How/Why |
-| G | Adjective Phrase |
-| Z | Conjunction |
+| D | Whom / What |
+| F | Where / When / How / Why (Adverbial phrases and clauses)|
+| G | Adjective Phrase or Clause |
+| Z | α(Treasure Chest) |
 
 The following additional commands are also available.
 
