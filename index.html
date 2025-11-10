@@ -222,8 +222,10 @@
 
         <!-- ファイル保存ボタン -->
         <div id="saveBtn" style="width:100%;margin: auto;">
-          <label for="fileName">課題名：</label>
-          <input type="text" id="fileName">
+          <div style="display: flex; flex-grow: 1; align-items: center; gap: 10px;">
+            <label for="fileName">課題名：</label>
+            <input type="text" id="fileName" style="flex-grow: 1;">
+          </div>
           <button><a id="download" href="#" download="test.html" onclick="handleDownload()" style="text-decoration:none;">課題を保存する</a></button>
         </div>  
     </div>
